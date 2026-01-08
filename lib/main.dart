@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rive/rive.dart';
 import 'package:riveplayer/screens/clients_list_screen.dart';
+import 'package:riveplayer/screens/password_screen.dart';
 import 'package:riveplayer/screens/rive_list_screen.dart';
 import 'package:riveplayer/screens/rive_player_screen.dart';
-import 'package:flutter/foundation.dart';
+import 'package:riveplayer/utils/session_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,10 +31,29 @@ class MyApp extends StatelessWidget {
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
+  errorBuilder: (context, state) => const ClientsListScreen(),
   routes: [
     GoRoute(path: '/', builder: (context, state) => const ClientsListScreen()),
     GoRoute(
+      path: '/password/:clientName',
+      builder: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
+        final redirectPath = state.uri.queryParameters['redirect'] ?? '/';
+        return PasswordScreen(
+          clientName: clientName,
+          redirectPath: redirectPath,
+        );
+      },
+    ),
+    GoRoute(
       path: '/client/:clientName',
+      redirect: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
+        if (!SessionManager.instance.isAuthenticated(clientName)) {
+          return '/password/$clientName?redirect=${state.uri.path}';
+        }
+        return null;
+      },
       builder: (context, state) {
         final clientName = state.pathParameters['clientName'] ?? '';
         return ClientRiveScreen(clientName: clientName);
@@ -41,6 +61,13 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/player/:clientName/:fileName',
+      redirect: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
+        if (!SessionManager.instance.isAuthenticated(clientName)) {
+          return '/password/$clientName?redirect=${state.uri.path}';
+        }
+        return null;
+      },
       builder: (context, state) {
         final clientName = state.pathParameters['clientName'] ?? '';
         final fileName = state.pathParameters['fileName'] ?? '';
