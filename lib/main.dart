@@ -36,6 +36,13 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const ClientsListScreen()),
     GoRoute(
       path: '/password/:clientName',
+      redirect: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
+        if (SessionManager.instance.isAuthenticated(clientName)) {
+          return state.uri.queryParameters['redirect'] ?? '/';
+        }
+        return null;
+      },
       builder: (context, state) {
         final clientName = state.pathParameters['clientName'] ?? '';
         final redirectPath = state.uri.queryParameters['redirect'] ?? '/';
@@ -76,3 +83,13 @@ final GoRouter _router = GoRouter(
     ),
   ],
 );
+
+extension NavigationExtensions on BuildContext {
+  void goToClientRiveScreen(String clientName) {
+    go('/client/${Uri.encodeComponent(clientName)}');
+  }
+
+  void goToClientsListScreen() {
+    go('/');
+  }
+}

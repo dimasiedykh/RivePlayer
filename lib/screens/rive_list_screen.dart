@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:riveplayer/main.dart';
 import 'package:riveplayer/utils/back_navigation.dart';
 import 'package:riveplayer/utils/rive_assets.dart';
 
@@ -9,10 +10,7 @@ class ClientRiveScreen extends StatelessWidget {
   const ClientRiveScreen({super.key, required this.clientName});
 
   // List of Rive files available in assets
-  static const List<String> riveFiles = [
-    'test.riv',
-    'test_another.riv',
-  ];
+  static const List<String> riveFiles = ['test.riv', 'test_another.riv'];
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +23,7 @@ class ClientRiveScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: goBack,
+          onPressed: () => context.goToClientsListScreen(),
         ),
       ),
       body: files.isEmpty
