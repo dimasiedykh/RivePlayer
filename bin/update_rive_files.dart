@@ -4,7 +4,19 @@ import 'dart:math';
 /// Script to update the clientFiles map in rive_assets.dart
 /// and assets section in pubspec.yaml based on actual .riv files
 /// organized by client folders in assets/rive
-void main() async {
+///
+/// Usage:
+///   dart run bin/update_rive_files.dart [regenerateAllPasswords]
+///
+/// Arguments:
+///   regenerateAllPasswords - Optional boolean flag (true/false)
+///                           If true, regenerates all client passwords
+///                           If false (default), preserves existing passwords
+void main(List<String> args) async {
+  // Parse arguments
+  final regenerateAllPasswords =
+      args.isNotEmpty && args[0].toLowerCase() == 'true';
+
   const assetsDir = 'assets/rive';
   const assetsFile = 'lib/utils/rive_assets.dart';
   const pubspecFile = 'pubspec.yaml';
@@ -61,11 +73,32 @@ void main() async {
   // Sort clients alphabetically
   final sortedClients = clientFiles.keys.toList()..sort();
 
-  // Generate passwords for each client
+  // Read existing passwords from rive_assets.dart
+  final existingContent = await assetsFileEntity.readAsString();
+  final Map<String, String> existingPasswords = _extractExistingPasswords(
+    existingContent,
+  );
+
+  // Generate or preserve passwords for each client
   final Map<String, String> clientPasswords = {};
   final random = Random.secure();
+
   for (final client in sortedClients) {
-    clientPasswords[client] = _generatePassword(random);
+    if (regenerateAllPasswords || !existingPasswords.containsKey(client)) {
+      // Generate new password
+      clientPasswords[client] = _generatePassword(random);
+    } else {
+      // Preserve existing password
+      clientPasswords[client] = existingPasswords[client]!;
+    }
+  }
+
+  if (regenerateAllPasswords) {
+    print('🔄 Regenerating passwords for all clients...');
+  } else {
+    print(
+      '🔒 Preserving existing passwords, generating for new clients only...',
+    );
   }
 
   // Build the new clientFiles map declaration
@@ -149,7 +182,7 @@ void main() async {
 
   // Replace the assets declaration using RegExp
   final assetsPattern = RegExp(
-    r'  assets:\s*\n(?:    - .*\n)*',
+    r'  assets:[\s\S]*?(?=\n\n|\nflutter:|\Z)',
     multiLine: true,
   );
 
@@ -165,13 +198,43 @@ void main() async {
   print('Found ${sortedClients.length} client(s):');
   for (final client in sortedClients) {
     final files = clientFiles[client]!;
+    final passwordStatus =
+        existingPasswords.containsKey(client) && !regenerateAllPasswords
+        ? '(preserved)'
+        : '(new)';
     print(
-      '  $client: ${files.length} file(s), password: ${clientPasswords[client]}',
+      '  $client: ${files.length} file(s), password: ${clientPasswords[client]} $passwordStatus',
     );
     for (final file in files) {
       print('    - $file');
     }
   }
+}
+
+/// Extract existing passwords from rive_assets.dart content
+Map<String, String> _extractExistingPasswords(String content) {
+  final Map<String, String> passwords = {};
+
+  // Match the _clientPasswords map content
+  final pattern = RegExp(r"'([^']+)':\s*'([^']+)'", multiLine: true);
+
+  final matches = pattern.allMatches(content);
+  for (final match in matches) {
+    // Check if this match is within the _clientPasswords section
+    final matchStart = match.start;
+    final passwordsMapStart = content.indexOf('_clientPasswords');
+    final passwordsMapEnd = content.indexOf('};', passwordsMapStart);
+
+    if (passwordsMapStart != -1 &&
+        matchStart > passwordsMapStart &&
+        matchStart < passwordsMapEnd) {
+      final clientName = match.group(1)!;
+      final password = match.group(2)!;
+      passwords[clientName] = password;
+    }
+  }
+
+  return passwords;
 }
 
 /// Generate a random password with 16-30 characters
