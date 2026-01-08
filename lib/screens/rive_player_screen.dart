@@ -92,8 +92,7 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Make sure to place your .riv files in the assets/rive/clientName/ folder.\n'
-            'Make sure to place your .riv files in the assets/rive/ folder',
+            'Make sure to store your riv files correctly ',
             textAlign: TextAlign.center,
             style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
           ),
