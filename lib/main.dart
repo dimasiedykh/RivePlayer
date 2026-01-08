@@ -31,10 +31,7 @@ class MyApp extends StatelessWidget {
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const ClientsListScreen(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const ClientsListScreen()),
     GoRoute(
       path: '/client/:clientName',
       builder: (context, state) {
@@ -47,12 +44,8 @@ final GoRouter _router = GoRouter(
       builder: (context, state) {
         final clientName = state.pathParameters['clientName'] ?? '';
         final fileName = state.pathParameters['fileName'] ?? '';
-        return RivePlayerScreen(
-          clientName: clientName,
-          fileName: fileName,
-        );
+        return RivePlayerScreen(clientName: clientName, fileName: fileName);
       },
     ),
   ],
-  routerNeglect: kIsWeb,
 );

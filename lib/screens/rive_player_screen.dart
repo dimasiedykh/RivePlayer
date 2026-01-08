@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rive/rive.dart';
+import 'package:riveplayer/utils/back_navigation.dart';
 import 'package:riveplayer/utils/rive_assets.dart';
 
 class RivePlayerScreen extends StatefulWidget {
@@ -42,7 +43,7 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
+          onPressed: goBack,
         ),
       ),
       body: RiveWidgetBuilder(
