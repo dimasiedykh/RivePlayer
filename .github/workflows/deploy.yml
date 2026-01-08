@@ -2,6 +2,12 @@ name: Deploy to GitHub Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      regenerateAllPasswords:
+        description: 'Regenerate all client passwords'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -35,7 +41,7 @@ jobs:
         run: flutter pub get
       
       - name: Run update script
-        run: dart run bin/update_rive_files.dart
+        run: dart run bin/update_rive_files.dart ${{ inputs.regenerateAllPasswords }}
       
       - name: Commit and push changes
         run: |
