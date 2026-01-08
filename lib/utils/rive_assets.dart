@@ -10,6 +10,7 @@ class RiveAssets {
     'client_name_0': [
       'cheeky_chops.riv',
       'choose_your_avatar.riv',
+      'test2.riv',
     ],
     'client_name_1': [
       'cheeky_chops copy 2.riv',
