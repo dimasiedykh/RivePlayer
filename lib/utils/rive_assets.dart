@@ -18,8 +18,8 @@ class RiveAssets {
 
   /// Map of client name to their unique password
   static const Map<String, String> _clientPasswords = {
-    'client_name_0': 'oPLQovdvSWXOJOYhktqQFD',
-    'client_name_1': '6s8r2IbLYEK6a4zM9WvXX3Iw6D2',
+    'client_name_0': '{NZWdIiD)&pwS,(v',
+    'client_name_1': 'rD2S?OQIXAgN-%P3i',
   };
 
   /// Get list of all available clients
