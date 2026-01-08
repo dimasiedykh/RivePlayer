@@ -4,9 +4,14 @@ import 'package:rive/rive.dart';
 import 'package:riveplayer/utils/rive_assets.dart';
 
 class RivePlayerScreen extends StatefulWidget {
+  final String clientName;
   final String fileName;
 
-  const RivePlayerScreen({super.key, required this.fileName});
+  const RivePlayerScreen({
+    super.key,
+    required this.clientName,
+    required this.fileName,
+  });
 
   @override
   State<RivePlayerScreen> createState() => _RivePlayerScreenState();
@@ -14,7 +19,7 @@ class RivePlayerScreen extends StatefulWidget {
 
 class _RivePlayerScreenState extends State<RivePlayerScreen> {
   late final fileLoader = FileLoader.fromAsset(
-    RiveAssets.getAssetPath(widget.fileName),
+    RiveAssets.getAssetPath(widget.clientName, widget.fileName),
     riveFactory: Factory.rive,
   );
 
@@ -29,10 +34,11 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final decodedFileName = Uri.decodeComponent(widget.fileName);
+    final decodedClientName = Uri.decodeComponent(widget.clientName);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(decodedFileName),
+        title: Text('$decodedClientName - $decodedFileName'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -43,7 +49,7 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
         fileLoader: fileLoader,
         builder: (context, state) => switch (state) {
           RiveLoading() => const Center(child: CircularProgressIndicator()),
-          RiveFailed() => _buildErrorWidget(),
+          RiveFailed() => _buildErrorWidget(decodedClientName, decodedFileName),
           RiveLoaded() => Center(
             child: Container(
               constraints: const BoxConstraints(maxWidth: 800, maxHeight: 600),
@@ -65,7 +71,7 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
     );
   }
 
-  Widget _buildErrorWidget() {
+  Widget _buildErrorWidget(String decodedFileName, String decodedClientName) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -80,12 +86,13 @@ class _RivePlayerScreenState extends State<RivePlayerScreen> {
           const SizedBox(height: 16),
           Text(
             _errorMessage ??
-                'The file "${widget.fileName}" could not be loaded.',
+                '$decodedClientName/$decodedFileName could not be loaded.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
           const Text(
+            'Make sure to place your .riv files in the assets/rive/clientName/ folder.\n'
             'Make sure to place your .riv files in the assets/rive/ folder',
             textAlign: TextAlign.center,
             style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
