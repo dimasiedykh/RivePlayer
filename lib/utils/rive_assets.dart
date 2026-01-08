@@ -8,18 +8,21 @@ class RiveAssets {
   /// Map of client name to list of their Rive files
   static const Map<String, List<String>> _clientFiles = {
     'client_name_0': [
-      'test.riv',
-      'test_another.riv',
+      'cheeky_chops.riv',
+      'choose_your_avatar.riv',
     ],
     'client_name_1': [
-      'test.riv',
+      'cheeky_chops copy 2.riv',
+      'cheeky_chops copy.riv',
+      'cheeky_chops.riv',
+      'choose_your_avatar.riv',
     ],
   };
 
   /// Map of client name to their unique password
   static const Map<String, String> _clientPasswords = {
-    'client_name_0': 'VauE_y#4JFs>S3TCd]Yb)',
-    'client_name_1': 'f[}?n_9AsnK=#C:%H<oJs@IYx0dhHc',
+    'client_name_0': 'W[^@]P@If=Zs2UI!',
+    'client_name_1': 'n7)-9:f9euK*-UDDOx<*,AHg]s',
   };
 
   /// Get list of all available clients
