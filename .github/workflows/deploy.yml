@@ -46,7 +46,7 @@ jobs:
           git push
       
       - name: Build web
-        run: flutter build web --release --base-href /riveplayer/
+        run: flutter build web --release --base-href /RivePlayer/
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
