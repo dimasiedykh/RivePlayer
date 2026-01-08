@@ -1,7 +1,7 @@
 import 'dart:io';
 
-/// Script to update the availableFiles list in rive_assets.dart
-/// based on actual .riv files in assets/rive folder
+/// Script to update the clientFiles map in rive_assets.dart
+/// based on actual .riv files organized by client folders in assets/rive
 void main() async {
   const assetsDir = 'assets/rive';
   const assetsFile = 'lib/utils/rive_assets.dart';
@@ -20,40 +20,64 @@ void main() async {
     exit(1);
   }
 
-  // Find all .riv files
-  print('Scanning for .riv files in $assetsDir...');
-  final rivFiles = <String>[];
+  print('Scanning for client folders and .riv files in $assetsDir...');
 
+  // Map to store client name -> list of rive files
+  final Map<String, List<String>> clientFiles = {};
+
+  // Scan for client directories
   await for (final entity in assetsDirEntity.list()) {
-    if (entity is File && entity.path.endsWith('.riv')) {
-      final fileName = entity.path.split('/').last;
-      rivFiles.add(fileName);
+    if (entity is Directory) {
+      final clientName = entity.path.split('/').last;
+      final rivFiles = <String>[];
+
+      // Find all .riv files in this client's directory
+      await for (final file in entity.list()) {
+        if (file is File && file.path.endsWith('.riv')) {
+          final fileName = file.path.split('/').last;
+          rivFiles.add(fileName);
+        }
+      }
+
+      // Sort the files alphabetically
+      rivFiles.sort();
+
+      if (rivFiles.isNotEmpty) {
+        clientFiles[clientName] = rivFiles;
+      }
     }
   }
 
-  // Sort the files alphabetically
-  rivFiles.sort();
+  // Sort clients alphabetically
+  final sortedClients = clientFiles.keys.toList()..sort();
 
-  // Build the new availableFiles declaration
+  // Build the new clientFiles map declaration
   final buffer = StringBuffer();
-  buffer.writeln('  static const List<String> availableFiles = [');
+  buffer.writeln('  static const Map<String, List<String>> clientFiles = {');
 
-  if (rivFiles.isEmpty) {
-    buffer.writeln('    // No .riv files found in assets/rive');
+  if (sortedClients.isEmpty) {
+    buffer.writeln(
+      '    // No client folders with .riv files found in assets/rive',
+    );
   } else {
-    for (final file in rivFiles) {
-      buffer.writeln("    '$file',");
+    for (final client in sortedClients) {
+      final files = clientFiles[client]!;
+      buffer.writeln("    '$client': [");
+      for (final file in files) {
+        buffer.writeln("      '$file',");
+      }
+      buffer.writeln('    ],');
     }
   }
 
-  buffer.write('  ];');
+  buffer.write('  };');
 
   // Read the current file content
   final content = await assetsFileEntity.readAsString();
 
-  // Replace the availableFiles declaration using RegExp
+  // Replace the clientFiles declaration using RegExp
   final pattern = RegExp(
-    r'  static const List<String> availableFiles = \[[\s\S]*?\];',
+    r'  static const Map<String, List<String>> clientFiles = \{[\s\S]*?\};',
     multiLine: true,
   );
 
@@ -63,8 +87,12 @@ void main() async {
   await assetsFileEntity.writeAsString(newContent);
 
   print('✅ Successfully updated $assetsFile');
-  print('Found ${rivFiles.length} file(s):');
-  for (final file in rivFiles) {
-    print('  - $file');
+  print('Found ${sortedClients.length} client(s):');
+  for (final client in sortedClients) {
+    final files = clientFiles[client]!;
+    print('  $client: ${files.length} file(s)');
+    for (final file in files) {
+      print('    - $file');
+    }
   }
 }
