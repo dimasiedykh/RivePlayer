@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rive/rive.dart';
+import 'package:riveplayer/screens/clients_list_screen.dart';
 import 'package:riveplayer/screens/rive_list_screen.dart';
 import 'package:riveplayer/screens/rive_player_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -30,12 +31,26 @@ class MyApp extends StatelessWidget {
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const RiveListScreen()),
     GoRoute(
-      path: '/player/:fileName',
+      path: '/',
+      builder: (context, state) => const ClientsListScreen(),
+    ),
+    GoRoute(
+      path: '/client/:clientName',
       builder: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
+        return ClientRiveScreen(clientName: clientName);
+      },
+    ),
+    GoRoute(
+      path: '/player/:clientName/:fileName',
+      builder: (context, state) {
+        final clientName = state.pathParameters['clientName'] ?? '';
         final fileName = state.pathParameters['fileName'] ?? '';
-        return RivePlayerScreen(fileName: fileName);
+        return RivePlayerScreen(
+          clientName: clientName,
+          fileName: fileName,
+        );
       },
     ),
   ],
